@@ -1,5 +1,6 @@
 /**
  * @typedef {{
+ *   levelsOfDifficulty: GameLevel[]
  *   state: GameState
  * }} BaseScreenProps
  */
@@ -10,6 +11,12 @@ export class BaseScreen {
    * @protected
    */
   state
+
+  /**
+   * @type {GameLevel[]}
+   * @protected
+   */
+  levelsOfDifficulty
 
   /**
    * @type {HTMLElement}
@@ -26,7 +33,8 @@ export class BaseScreen {
   /**
    * @param {BaseScreenProps} props
    */
-  constructor({ state }) {
+  constructor({ levelsOfDifficulty, state }) {
+    this.levelsOfDifficulty = levelsOfDifficulty
     this.state = state
   }
 
@@ -42,6 +50,7 @@ export class BaseScreen {
 
   removeContainer() {
     if (this.$body.contains(this.$container)) {
+      this.$container.replaceChildren()
       this.$body.removeChild(this.$container)
     }
   }

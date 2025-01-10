@@ -1,10 +1,11 @@
-import { PlayScreen } from 'service/PlayScreen.js'
-import { StartScreen } from 'service/StartScreen.js'
+import { PlayScreen } from 'service/screen/PlayScreen.js'
+import { StartScreen } from 'service/screen/StartScreen.js'
 
 /**
  * @typedef {{
  *   name: string
  *   sequence: string
+ *   title: string
  * }} GameLevel
  */
 
@@ -47,9 +48,17 @@ export class Game {
   constructor({
     increasingSymbols = 2,
     levelsOfDifficulty = [
-      { name: 'easy', sequence: '0123456789' },
-      { name: 'medium', sequence: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' },
-      { name: 'hard', sequence: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' }
+      { name: 'easy', sequence: '0123456789', title: 'Easy' },
+      {
+        name: 'medium',
+        sequence: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        title: 'Medium'
+      },
+      {
+        name: 'hard',
+        sequence: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        title: 'Hard'
+      }
     ],
     rounds = 5
   } = {}) {
@@ -71,8 +80,14 @@ export class Game {
 
   #initScreens() {
     this.#screens = [
-      new StartScreen({ state: this.#state }),
-      new PlayScreen({ state: this.#state })
+      new StartScreen({
+        levelsOfDifficulty: this.#config.levelsOfDifficulty,
+        state: this.#state
+      }),
+      new PlayScreen({
+        levelsOfDifficulty: this.#config.levelsOfDifficulty,
+        state: this.#state
+      })
     ]
 
     this.#screens[0].activate()
