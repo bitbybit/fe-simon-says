@@ -62,7 +62,7 @@ export class Game {
 
     this.#state = new GameState({
       levelOfDifficulty: this.#config.levelsOfDifficulty[0],
-      round: 1,
+      round: 0,
       symbols: this.#config.increasingSymbols
     })
 
@@ -73,7 +73,10 @@ export class Game {
     this.#screens = [
       new StartScreen({
         levelsOfDifficulty: this.#config.levelsOfDifficulty,
-        state: this.#state
+        state: this.#state,
+        onStart: () => {
+          this.#playGame()
+        }
       }),
 
       new PlayScreen({
@@ -83,5 +86,15 @@ export class Game {
     ]
 
     this.#screens[0].activate()
+  }
+
+  #playGame() {
+    this.#state.round = 1
+
+    const playScreen = this.#screens.find(
+      (screen) => screen.constructor.name === 'PlayScreen'
+    )
+
+    playScreen.activate()
   }
 }

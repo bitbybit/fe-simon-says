@@ -37,4 +37,11 @@ export class GameState {
     this.screen = screen
     this.symbols = symbols
   }
+
+  /**
+   * @returns {boolean}
+   */
+  get isStarted() {
+    return this.round > 0
+  }
 }

@@ -1,43 +1,32 @@
 import { BaseScreen } from 'service/screen/BaseScreen.js'
 import { Button } from 'service/ui/Button.js'
-import { DifficultyLevel } from 'service/DifficultyLevel.js'
-import { Keyboard } from 'service/Keyboard.js'
+
+/**
+ * @typedef {BaseScreen & {
+ *   onStart
+ * }} StartScreenProps
+ */
 
 export class StartScreen extends BaseScreen {
   /**
-   * @type {HTMLDivElement}
-   * @private
+   * @type {() => {}}
    */
-  $keyboardContainer = document.createElement('div')
+  #onStart
+
+  constructor({ onStart = () => {}, ...props }) {
+    super(props)
+
+    this.#onStart = onStart
+  }
 
   customizeContainer() {
     const startButton = new Button({
       title: 'Start',
-      onClick() {
-        console.log('start')
+      onClick: () => {
+        this.#onStart()
       }
     })
 
-    const keyboard = new Keyboard({
-      sequence: this.state.levelOfDifficulty.sequence,
-      onPress: (symbol) => {
-        console.log(symbol)
-      }
-    })
-
-    const level = new DifficultyLevel({
-      levelsOfDifficulty: this.levelsOfDifficulty,
-      state: this.state,
-      onChange: (levelOfDifficulty) => {
-        keyboard.setSequence(levelOfDifficulty.sequence)
-        this.$keyboardContainer.replaceChildren(...keyboard.$elements)
-      }
-    })
-
-    this.$container.appendChild(startButton.$element)
-    this.$container.append(...level.$elements)
-
-    this.$container.appendChild(this.$keyboardContainer)
-    this.$keyboardContainer.replaceChildren(...keyboard.$elements)
+    this.$container.prepend(startButton.$element)
   }
 }
