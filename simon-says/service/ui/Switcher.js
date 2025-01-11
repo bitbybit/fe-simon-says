@@ -59,4 +59,16 @@ export class Switcher {
 
     this.value = value
   }
+
+  disable() {
+    for (const button of this.buttons) {
+      button.disable()
+    }
+  }
+
+  enable() {
+    for (const button of this.buttons) {
+      button.enable()
+    }
+  }
 }

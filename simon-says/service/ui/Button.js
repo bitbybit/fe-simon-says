@@ -42,4 +42,11 @@ export class Button {
     this.$element.classList.remove('btn-info')
     this.$element.classList.add('btn-primary')
   }
+
+  /**
+   * @returns {boolean}
+   */
+  get isDisabled() {
+    return this.$element.hasAttribute('disabled')
+  }
 }

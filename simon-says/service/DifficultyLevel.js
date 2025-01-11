@@ -60,6 +60,14 @@ export class DifficultyLevel {
     this.#onChange(levelOfDifficulty)
   }
 
+  disable() {
+    this.#switcher.disable()
+  }
+
+  enable() {
+    this.#switcher.enable()
+  }
+
   /**
    * @returns {SwitcherOption[]}
    */

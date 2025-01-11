@@ -66,6 +66,18 @@ export class Keyboard {
     }
   }
 
+  disable() {
+    for (const key of this.#keys) {
+      key.disable()
+    }
+  }
+
+  enable() {
+    for (const key of this.#keys) {
+      key.enable()
+    }
+  }
+
   /**
    * @returns {HTMLButtonElement[]}
    */

@@ -43,8 +43,6 @@ export class Key {
     })
 
     this.#listenPressBound = this.#listenPress.bind(this)
-
-    this.addListener()
   }
 
   addListener() {
@@ -60,8 +58,9 @@ export class Key {
    */
   #listenPress(e) {
     if (
-      e.key.charCodeAt(0) === this.#upperCode ||
-      e.key.charCodeAt(0) === this.#lowerCode
+      (e.key.charCodeAt(0) === this.#upperCode ||
+        e.key.charCodeAt(0) === this.#lowerCode) &&
+      !this.#button.isDisabled
     ) {
       this.#onPress(this.#value)
     }
@@ -80,6 +79,16 @@ export class Key {
         resolve()
       }, 200)
     })
+  }
+
+  disable() {
+    this.removeListener()
+    this.#button.disable()
+  }
+
+  enable() {
+    this.addListener()
+    this.#button.enable()
   }
 
   /**
