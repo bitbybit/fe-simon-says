@@ -3,6 +3,7 @@ import { Switcher } from 'service/ui/Switcher.js'
 /**
  * @typedef {{
  *   levelsOfDifficulty: GameLevel[]
+ *   onChange?: (value: GameLevel) => {}
  *   state: GameState
  * }} DifficultyLevelProps
  */
@@ -24,11 +25,17 @@ export class DifficultyLevel {
   #switcher
 
   /**
+   * @type {DifficultyLevelProps['onChange']}
+   */
+  #onChange
+
+  /**
    * @param {DifficultyLevelProps} props
    */
-  constructor({ levelsOfDifficulty, state }) {
+  constructor({ levelsOfDifficulty, onChange = () => {}, state }) {
     this.#state = state
     this.#levelsOfDifficulty = levelsOfDifficulty
+    this.#onChange = onChange
 
     this.#switcher = new Switcher({
       value: this.#state.levelOfDifficulty.name,
@@ -43,9 +50,13 @@ export class DifficultyLevel {
    * @param {SwitcherOption['value']} value
    */
   #setLevel(value) {
-    this.#state.levelOfDifficulty = this.#levelsOfDifficulty.find(
+    const levelOfDifficulty = this.#levelsOfDifficulty.find(
       ({ name }) => name === value
     )
+
+    this.#state.levelOfDifficulty = levelOfDifficulty
+
+    this.#onChange(levelOfDifficulty)
   }
 
   /**
