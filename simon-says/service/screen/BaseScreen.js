@@ -70,13 +70,6 @@ export class BaseScreen {
         console.log(symbol)
       }
     })
-
-    this.#setDifficultyLevel()
-
-    this.$container.append(
-      this.$difficultyLevelContainer,
-      this.$keyboardContainer
-    )
   }
 
   /**
@@ -114,6 +107,11 @@ export class BaseScreen {
    */
   #insertContainer() {
     this.$body.appendChild(this.$container)
+
+    this.$container.append(
+      this.$difficultyLevelContainer,
+      this.$keyboardContainer
+    )
 
     this.state.screen = this
   }
