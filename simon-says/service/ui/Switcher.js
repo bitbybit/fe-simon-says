@@ -2,14 +2,6 @@ import { Button } from 'service/ui/Button.js'
 
 /**
  * @typedef {{
- *   onClick?: (value: SwitcherOption['value']) => {}
- *   title: string
- *   value: string
- * }} SwitcherOption
- */
-
-/**
- * @typedef {{
  *   options: SwitcherOption[]
  *   value: SwitcherOption['value']
  * }} SwitcherProps

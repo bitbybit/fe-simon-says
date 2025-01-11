@@ -1,29 +1,15 @@
+import { GameConfig } from 'service/model/GameConfig.js'
+import { GameState } from 'service/model/GameState.js'
+import { GameLevel } from 'service/model/GameLevel.js'
 import { PlayScreen } from 'service/screen/PlayScreen.js'
 import { StartScreen } from 'service/screen/StartScreen.js'
 
 /**
  * @typedef {{
- *   name: string
- *   sequence: string
- *   title: string
- * }} GameLevel
- */
-
-/**
- * @typedef {{
- *   increasingSymbols: number
- *   levelsOfDifficulty: GameLevel[]
- *   rounds: number
- * }} GameConfig
- */
-
-/**
- * @typedef {{
- *   levelOfDifficulty: GameLevel
- *   round: number
- *   screen?: BaseScreen
- *   symbols: number
- * }} GameState
+ *   increasingSymbols: GameConfig['increasingSymbols']
+ *   levelsOfDifficulty: GameConfig['levelsOfDifficulty']
+ *   rounds: GameConfig['rounds']
+ * }} GameProps
  */
 
 export class Game {
@@ -43,37 +29,42 @@ export class Game {
   #screens
 
   /**
-   * @param {GameConfig} config
+   * @param {GameProps} props
    */
   constructor({
     increasingSymbols = 2,
     levelsOfDifficulty = [
-      { name: 'easy', sequence: '0123456789', title: 'Easy' },
-      {
+      new GameLevel({
+        name: 'easy',
+        sequence: '0123456789',
+        title: 'Easy'
+      }),
+
+      new GameLevel({
         name: 'medium',
         sequence: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
         title: 'Medium'
-      },
-      {
+      }),
+
+      new GameLevel({
         name: 'hard',
         sequence: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
         title: 'Hard'
-      }
+      })
     ],
     rounds = 5
   } = {}) {
-    this.#config = {
+    this.#config = new GameConfig({
       increasingSymbols,
       levelsOfDifficulty,
       rounds
-    }
+    })
 
-    this.#state = {
+    this.#state = new GameState({
       levelOfDifficulty: this.#config.levelsOfDifficulty[0],
       round: 1,
-      screen: undefined,
       symbols: this.#config.increasingSymbols
-    }
+    })
 
     this.#initScreens()
   }
@@ -84,6 +75,7 @@ export class Game {
         levelsOfDifficulty: this.#config.levelsOfDifficulty,
         state: this.#state
       }),
+
       new PlayScreen({
         levelsOfDifficulty: this.#config.levelsOfDifficulty,
         state: this.#state

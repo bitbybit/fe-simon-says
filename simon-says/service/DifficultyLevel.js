@@ -1,3 +1,4 @@
+import { SwitcherOption } from 'service/model/SwitcherOption.js'
 import { Switcher } from 'service/ui/Switcher.js'
 
 /**
@@ -63,10 +64,13 @@ export class DifficultyLevel {
    * @returns {SwitcherOption[]}
    */
   get #options() {
-    return this.#levelsOfDifficulty.map(({ name: value, title }) => ({
-      value,
-      title
-    }))
+    return this.#levelsOfDifficulty.map(
+      ({ name: value, title }) =>
+        new SwitcherOption({
+          value,
+          title
+        })
+    )
   }
 
   /**
