@@ -11,13 +11,11 @@ import { DifficultyLevel } from 'service/DifficultyLevel.js'
 export class BaseScreen {
   /**
    * @type {GameState}
-   * @protected
    */
   state
 
   /**
    * @type {GameLevel[]}
-   * @protected
    */
   levelsOfDifficulty
 
