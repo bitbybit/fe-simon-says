@@ -14,7 +14,7 @@ export class Keyboard {
   #keys = []
 
   /**
-   * @type {KeyboardProps['onPress']}
+   * @type {(value: string) => {}}
    */
   #onPress
 
@@ -47,19 +47,13 @@ export class Keyboard {
     for (const value of values) {
       const key = new Key({
         value,
-        onPress: async (value) => {
-          if (this.#pressed !== null) {
-            return
-          }
 
-          this.#pressed = value.toLowerCase()
-
-          this.#onPress(this.#pressed)
-
-          await key.highlight()
-
-          this.#pressed = null
-        }
+        onPress: (value) =>
+          this.#type({
+            key,
+            value,
+            callback: this.#onPress
+          })
       })
 
       this.#keys.push(key)
@@ -79,9 +73,65 @@ export class Keyboard {
   }
 
   /**
+   * @param {Object} props
+   * @param {((value: string) => {})|undefined} props.callback
+   * @param {Key} props.key
+   * @param {boolean|undefined} props.isLongPress
+   * @param {string} props.value
+   * @returns {Promise<void>}
+   */
+  async #type({ callback = () => {}, key, isLongPress = false, value }) {
+    if (this.#isPressed) {
+      return
+    }
+
+    this.#pressed = value.toLowerCase()
+
+    if (isLongPress) {
+      await key.slowHighlight()
+    } else {
+      await key.highlight()
+    }
+
+    callback(this.#pressed)
+
+    this.#pressed = null
+  }
+
+  /**
+   * @param {string} sequence
+   */
+  async typeSequence(sequence) {
+    console.log(`SEQUENCE: ${sequence}`)
+
+    this.disable()
+
+    this.#pressed = null
+
+    for (const value of sequence) {
+      const key = this.#keys.find((key) => key.value === value)
+
+      await this.#type({
+        key,
+        value,
+        isLongPress: true
+      })
+    }
+
+    this.enable()
+  }
+
+  /**
    * @returns {HTMLButtonElement[]}
    */
   get $elements() {
     return this.#keys.map((key) => key.$element)
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  get #isPressed() {
+    return this.#pressed !== null
   }
 }
