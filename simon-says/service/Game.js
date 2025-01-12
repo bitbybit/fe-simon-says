@@ -81,11 +81,19 @@ export class Game {
 
       new PlayScreen({
         levelsOfDifficulty: this.#config.levelsOfDifficulty,
-        state: this.#state
+        state: this.#state,
+        onRepeatSequence: () => {
+          console.log('repeat sequence')
+        },
+        onNewGame: () => {
+          console.log('new game')
+        }
       })
     ]
 
-    this.#screens[0].activate()
+    const startScreen = this.#screens[0]
+
+    startScreen.activate()
   }
 
   #playGame() {
