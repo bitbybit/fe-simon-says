@@ -9,6 +9,12 @@ import { Button } from 'service/ui/Button.js'
 
 export class Key {
   /**
+   * @type {number}
+   * @readonly
+   */
+  #highlightTimeout = 300
+
+  /**
    * @type {Button}
    */
   #button
@@ -16,7 +22,7 @@ export class Key {
   /**
    * @type {KeyProps['value']}
    */
-  #value
+  value
 
   /**
    * @type {KeyProps['onPress']}
@@ -32,13 +38,13 @@ export class Key {
    * @param {KeyProps} props
    */
   constructor({ onPress = () => {}, value }) {
-    this.#value = value
+    this.value = value
     this.#onPress = onPress
 
     this.#button = new Button({
-      title: this.#value.toUpperCase(),
+      title: this.value.toUpperCase(),
       onClick: () => {
-        this.#onPress(this.#value)
+        this.#onPress(this.value)
       }
     })
 
@@ -62,7 +68,7 @@ export class Key {
         e.key.charCodeAt(0) === this.#lowerCode) &&
       !this.#button.isDisabled
     ) {
-      this.#onPress(this.#value)
+      this.#onPress(this.value)
     }
   }
 
@@ -77,7 +83,24 @@ export class Key {
         this.#button.highlightOff()
 
         resolve()
-      }, 200)
+      }, this.#highlightTimeout)
+    })
+  }
+
+  /**
+   * @returns {Promise}
+   */
+  slowHighlight() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.#button.highlightOn()
+
+        setTimeout(() => {
+          this.#button.highlightOff()
+
+          resolve()
+        }, this.#highlightTimeout * 2)
+      }, this.#highlightTimeout)
     })
   }
 
@@ -95,14 +118,14 @@ export class Key {
    * @returns {number}
    */
   get #upperCode() {
-    return this.#value.toUpperCase().charCodeAt(0)
+    return this.value.toUpperCase().charCodeAt(0)
   }
 
   /**
    * @returns {number}
    */
   get #lowerCode() {
-    return this.#value.toLowerCase().charCodeAt(0)
+    return this.value.toLowerCase().charCodeAt(0)
   }
 
   /**
