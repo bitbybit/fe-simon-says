@@ -83,7 +83,7 @@ export class Key {
         this.#button.highlightOff()
 
         resolve()
-      }, this.#highlightTimeout)
+      }, this.#highlightTimeout / 2)
     })
   }
 
