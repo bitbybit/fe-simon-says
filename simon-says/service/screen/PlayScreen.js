@@ -4,8 +4,9 @@ import { Field } from 'service/ui/Field.js'
 
 /**
  * @typedef {BaseScreenProps & {
- *   onRepeatSequence?: () => {}
  *   onNewGame?: () => {}
+ *   onNext?: () => {}
+ *   onRepeatSequence?: () => {}
  * }} PlayScreenProps
  */
 
@@ -18,7 +19,7 @@ export class PlayScreen extends BaseScreen {
   /**
    * @type {Button}
    */
-  #repeatButton = new Button({
+  repeatButton = new Button({
     title: 'Repeat the sequence',
     onClick: () => {
       this.#onRepeatSequence()
@@ -28,10 +29,20 @@ export class PlayScreen extends BaseScreen {
   /**
    * @type {Button}
    */
-  #newGameButton = new Button({
+  newGameButton = new Button({
     title: 'New game',
     onClick: () => {
       this.#onNewGame()
+    }
+  })
+
+  /**
+   * @type {Button}
+   */
+  nextButton = new Button({
+    title: 'Next',
+    onClick: () => {
+      this.#onNext()
     }
   })
 
@@ -46,9 +57,19 @@ export class PlayScreen extends BaseScreen {
   #onNewGame
 
   /**
+   * @type {() => {}}
+   */
+  #onNext
+
+  /**
    * @type {HTMLDivElement}
    */
   $round = document.createElement('div')
+
+  /**
+   * @type {HTMLDivElement}
+   */
+  $message = document.createElement('div')
 
   /**
    * @type {HTMLDivElement}
@@ -59,28 +80,32 @@ export class PlayScreen extends BaseScreen {
    * @param {PlayScreenProps} props
    */
   constructor({
-    onRepeatSequence = () => {},
     onNewGame = () => {},
+    onNext = () => {},
+    onRepeatSequence = () => {},
     ...baseProps
   }) {
     super(baseProps)
 
     this.#onRepeatSequence = onRepeatSequence
     this.#onNewGame = onNewGame
+    this.#onNext = onNext
   }
 
   customizeContainer() {
     this.displayRound()
-
-    this.#field.clear()
+    this.clearMessage()
+    this.clearField()
+    this.hideNextButton()
 
     this.$controls.append(
       this.#field.$element,
-      this.#repeatButton.$element,
-      this.#newGameButton.$element
+      this.repeatButton.$element,
+      this.nextButton.$element,
+      this.newGameButton.$element
     )
 
-    this.$container.prepend(this.$round, this.$controls)
+    this.$container.prepend(this.$round, this.$controls, this.$message)
   }
 
   displayRound() {
@@ -88,10 +113,27 @@ export class PlayScreen extends BaseScreen {
   }
 
   /**
+   * @param {Object} params
+   * @param {'success'|'error'|undefined} params.type
+   * @param {string} params.message
+   */
+  setMessage({ type = 'success', message }) {
+    this.$message.innerText = message
+  }
+
+  clearMessage() {
+    this.setMessage({ message: '' })
+  }
+
+  /**
    * @returns {Promise<void>}
    */
-  typeSequence() {
-    return this.keyboard.typeSequence(this.state.generatedSequence)
+  async typeSequence() {
+    this.newGameButton.disable()
+
+    await this.keyboard.typeSequence(this.state.generatedSequence)
+
+    this.newGameButton.enable()
   }
 
   /**
@@ -103,5 +145,15 @@ export class PlayScreen extends BaseScreen {
 
   clearField() {
     this.#field.clear()
+  }
+
+  hideNextButton() {
+    this.nextButton.hide()
+    this.repeatButton.show()
+  }
+
+  showNextButton() {
+    this.repeatButton.hide()
+    this.nextButton.show()
   }
 }

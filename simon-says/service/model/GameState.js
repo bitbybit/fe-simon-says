@@ -32,6 +32,11 @@ export class GameState {
   screen
 
   /**
+   * @type {number}
+   */
+  attempt = 0
+
+  /**
    * @param {GameStateProps} props
    */
   constructor({ levelOfDifficulty, screen }) {
@@ -44,5 +49,12 @@ export class GameState {
    */
   get isStarted() {
     return this.round > 0
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  get isTypedFullSequence() {
+    return this.typedSequence.length === this.generatedSequence.length
   }
 }

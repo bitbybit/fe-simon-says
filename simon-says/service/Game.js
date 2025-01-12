@@ -6,6 +6,7 @@ import { StartScreen } from 'service/screen/StartScreen.js'
 
 /**
  * @typedef {{
+ *   attempts: GameConfig['attempts']
  *   increasingSymbols: GameConfig['increasingSymbols']
  *   levelsOfDifficulty: GameConfig['levelsOfDifficulty']
  *   rounds: GameConfig['rounds']
@@ -32,6 +33,7 @@ export class Game {
    * @param {GameProps} props
    */
   constructor({
+    attempts = 2,
     increasingSymbols = 2,
     levelsOfDifficulty = [
       new GameLevel({
@@ -55,6 +57,7 @@ export class Game {
     rounds = 5
   } = {}) {
     this.#config = new GameConfig({
+      attempts,
       increasingSymbols,
       levelsOfDifficulty,
       rounds
@@ -83,7 +86,7 @@ export class Game {
         state: this.#state,
 
         onRepeatSequence: async () => {
-          await this.#playScreen.typeSequence()
+          await this.#repeatRound()
         },
 
         onNewGame: () => {
@@ -92,6 +95,10 @@ export class Game {
 
         onPress: async (symbol) => {
           await this.#addToTypedSequence(symbol)
+        },
+
+        onNext: async () => {
+          await this.#playNextRound()
         }
       })
     ]
@@ -108,20 +115,34 @@ export class Game {
 
   #finishGame() {
     this.#state.round = 0
+    this.#state.attempt = 0
     this.#state.typedSequence = ''
 
-    this.#playScreen.clearField()
     this.#startScreen.activate()
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async #playNextRound() {
+    this.#nextRound()
+
+    await this.#playScreen.typeSequence()
   }
 
   #nextRound() {
     this.#state.round += 1
+    this.#state.attempt = 1
     this.#state.typedSequence = ''
 
     this.#generateSequence()
 
     this.#playScreen.displayRound()
+    this.#playScreen.clearMessage()
     this.#playScreen.clearField()
+    this.#playScreen.hideNextButton()
+
+    this.#playScreen.repeatButton.enable()
   }
 
   #generateSequence() {
@@ -138,6 +159,22 @@ export class Game {
   }
 
   /**
+   * @returns {Promise<void>}
+   */
+  async #repeatRound() {
+    if (!this.#canDoAttempt) {
+      return
+    }
+
+    this.#playScreen.clearMessage()
+    this.#playScreen.clearField()
+
+    this.#playScreen.repeatButton.disable()
+
+    await this.#playScreen.typeSequence()
+  }
+
+  /**
    * @param {string} symbol
    */
   async #addToTypedSequence(symbol) {
@@ -151,32 +188,64 @@ export class Game {
         currentTypedSequence[i] === this.#state.generatedSequence[i]
 
       if (!isValidSequence) {
-        console.log(
-          `FAIL ROUND ${this.#state.round}:
-          ${currentTypedSequence} != ${this.#state.generatedSequence}`
-        )
+        this.#state.attempt += 1
 
-        this.#finishGame()
+        if (!this.#canDoAttempt) {
+          this.#playScreen.setMessage({
+            type: 'error',
+            message: 'Game over!'
+          })
+
+          console.log(
+            `LOST GAME ON LEVEL ${this.#state.levelOfDifficulty.title}:
+            ${currentTypedSequence} != ${this.#state.generatedSequence}`
+          )
+
+          this.#playScreen.repeatButton.disable()
+        } else {
+          this.#playScreen.setMessage({
+            type: 'error',
+            message: 'Round is failed'
+          })
+
+          console.log(
+            `LOST ROUND ${this.#state.round}:
+            ${currentTypedSequence} != ${this.#state.generatedSequence}`
+          )
+        }
+
+        this.#playScreen.keyboard.disable()
+
         return
       }
     }
 
     this.#state.typedSequence = currentTypedSequence
 
-    if (this.#isTypedFullSequence) {
-      console.log(
-        `WIN ROUND ${this.#state.round}:
-        ${currentTypedSequence} == ${this.#state.generatedSequence}`
-      )
-
+    if (this.#state.isTypedFullSequence) {
       if (this.#canDoNextRound) {
-        this.#nextRound()
-        await this.#playScreen.typeSequence()
-      } else {
-        console.log(`WIN GAME ON LEVEL ${this.#state.levelOfDifficulty.title}`)
+        this.#playScreen.setMessage({
+          type: 'success',
+          message: 'Round is completed'
+        })
 
-        this.#finishGame()
+        console.log(
+          `WIN ROUND ${this.#state.round}:
+        ${currentTypedSequence} == ${this.#state.generatedSequence}`
+        )
+
+        this.#playScreen.showNextButton()
+      } else {
+        this.#playScreen.setMessage({
+          type: 'success',
+          message: `You have won (${this.#state.levelOfDifficulty.title})!`
+        })
+
+        console.log(`WIN GAME ON LEVEL ${this.#state.levelOfDifficulty.title}`)
       }
+
+      this.#playScreen.keyboard.disable()
+      this.#playScreen.repeatButton.disable()
     }
   }
 
@@ -208,16 +277,14 @@ export class Game {
   /**
    * @returns {boolean}
    */
-  get #isTypedFullSequence() {
-    return (
-      this.#state.typedSequence.length === this.#state.generatedSequence.length
-    )
+  get #canDoNextRound() {
+    return this.#state.round < this.#config.rounds
   }
 
   /**
    * @returns {boolean}
    */
-  get #canDoNextRound() {
-    return this.#state.round < this.#config.rounds
+  get #canDoAttempt() {
+    return this.#state.attempt <= this.#config.attempts
   }
 }
