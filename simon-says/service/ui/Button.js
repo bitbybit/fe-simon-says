@@ -9,14 +9,12 @@ export class Button {
   /**
    * @type {HTMLButtonElement}
    */
-  $element
+  $element = document.createElement('button')
 
   /**
    * @param {ButtonProps} props
    */
   constructor({ title, onClick = () => {} }) {
-    this.$element = document.createElement('button')
-
     this.$element.classList.add('btn')
     this.$element.classList.add('btn-primary')
 
