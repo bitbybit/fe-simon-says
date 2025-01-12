@@ -1,9 +1,7 @@
 /**
  * @typedef {{
  *   levelOfDifficulty: GameLevel
- *   round: number
  *   screen?: BaseScreen
- *   symbols: number
  * }} GameStateProps
  */
 
@@ -16,7 +14,17 @@ export class GameState {
   /**
    * @type {number}
    */
-  round
+  round = 0
+
+  /**
+   * @type {string}
+   */
+  generatedSequence = ''
+
+  /**
+   * @type {string}
+   */
+  typedSequence = ''
 
   /**
    * @type {BaseScreen|undefined}
@@ -24,18 +32,11 @@ export class GameState {
   screen
 
   /**
-   * @type {number}
-   */
-  symbols
-
-  /**
    * @param {GameStateProps} props
    */
-  constructor({ levelOfDifficulty, round, screen, symbols }) {
+  constructor({ levelOfDifficulty, screen }) {
     this.levelOfDifficulty = levelOfDifficulty
-    this.round = round
     this.screen = screen
-    this.symbols = symbols
   }
 
   /**

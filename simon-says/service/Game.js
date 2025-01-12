@@ -61,9 +61,7 @@ export class Game {
     })
 
     this.#state = new GameState({
-      levelOfDifficulty: this.#config.levelsOfDifficulty[0],
-      round: 0,
-      symbols: this.#config.increasingSymbols
+      levelOfDifficulty: this.#config.levelsOfDifficulty[0]
     })
 
     this.#initScreens()
@@ -74,35 +72,152 @@ export class Game {
       new StartScreen({
         levelsOfDifficulty: this.#config.levelsOfDifficulty,
         state: this.#state,
-        onStart: () => {
-          this.#playGame()
+
+        onStart: async () => {
+          await this.#playGame()
         }
       }),
 
       new PlayScreen({
         levelsOfDifficulty: this.#config.levelsOfDifficulty,
         state: this.#state,
-        onRepeatSequence: () => {
-          console.log('repeat sequence')
+
+        onRepeatSequence: async () => {
+          await this.#playScreen.typeSequence()
         },
+
         onNewGame: () => {
-          console.log('new game')
+          this.#finishGame()
+        },
+
+        onPress: async (symbol) => {
+          await this.#addToTypedSequence(symbol)
         }
       })
     ]
 
-    const startScreen = this.#screens[0]
-
-    startScreen.activate()
+    this.#startScreen.activate()
   }
 
-  #playGame() {
-    this.#state.round = 1
+  async #playGame() {
+    this.#nextRound()
 
-    const playScreen = this.#screens.find(
+    this.#playScreen.activate()
+    await this.#playScreen.typeSequence()
+  }
+
+  #finishGame() {
+    this.#state.round = 0
+    this.#state.typedSequence = ''
+
+    this.#playScreen.clearField()
+    this.#startScreen.activate()
+  }
+
+  #nextRound() {
+    this.#state.round += 1
+    this.#state.typedSequence = ''
+
+    this.#generateSequence()
+
+    this.#playScreen.displayRound()
+    this.#playScreen.clearField()
+  }
+
+  #generateSequence() {
+    this.#state.generatedSequence = ''
+
+    for (let i = 0; i < this.#generatedSequenceLength; i++) {
+      const randomIndex = Math.floor(
+        Math.random() * this.#state.levelOfDifficulty.sequence.length
+      )
+
+      this.#state.generatedSequence +=
+        this.#state.levelOfDifficulty.sequence[randomIndex].toUpperCase()
+    }
+  }
+
+  /**
+   * @param {string} symbol
+   */
+  async #addToTypedSequence(symbol) {
+    this.#playScreen.addToField(symbol)
+
+    const currentTypedSequence =
+      `${this.#state.typedSequence}${symbol}`.toUpperCase()
+
+    for (let i = 0; i < currentTypedSequence.length; i++) {
+      const isValidSequence =
+        currentTypedSequence[i] === this.#state.generatedSequence[i]
+
+      if (!isValidSequence) {
+        console.log(
+          `FAIL ROUND ${this.#state.round}:
+          ${currentTypedSequence} != ${this.#state.generatedSequence}`
+        )
+
+        this.#finishGame()
+        return
+      }
+    }
+
+    this.#state.typedSequence = currentTypedSequence
+
+    if (this.#isTypedFullSequence) {
+      console.log(
+        `WIN ROUND ${this.#state.round}:
+        ${currentTypedSequence} == ${this.#state.generatedSequence}`
+      )
+
+      if (this.#canDoNextRound) {
+        this.#nextRound()
+        await this.#playScreen.typeSequence()
+      } else {
+        console.log(`WIN GAME ON LEVEL ${this.#state.levelOfDifficulty.title}`)
+
+        this.#finishGame()
+      }
+    }
+  }
+
+  /**
+   * @returns {BaseScreen|StartScreen}
+   */
+  get #startScreen() {
+    return this.#screens.find(
+      (screen) => screen.constructor.name === 'StartScreen'
+    )
+  }
+
+  /**
+   * @returns {BaseScreen|PlayScreen}
+   */
+  get #playScreen() {
+    return this.#screens.find(
       (screen) => screen.constructor.name === 'PlayScreen'
     )
+  }
 
-    playScreen.activate()
+  /**
+   * @returns {number}
+   */
+  get #generatedSequenceLength() {
+    return this.#config.increasingSymbols * this.#state.round
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  get #isTypedFullSequence() {
+    return (
+      this.#state.typedSequence.length === this.#state.generatedSequence.length
+    )
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  get #canDoNextRound() {
+    return this.#state.round < this.#config.rounds
   }
 }

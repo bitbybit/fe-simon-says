@@ -4,6 +4,7 @@ import { DifficultyLevel } from 'service/DifficultyLevel.js'
 /**
  * @typedef {{
  *   levelsOfDifficulty: GameLevel[]
+ *   onPress?: (value: string) => {}
  *   state: GameState
  * }} BaseScreenProps
  */
@@ -11,11 +12,13 @@ import { DifficultyLevel } from 'service/DifficultyLevel.js'
 export class BaseScreen {
   /**
    * @type {GameState}
+   * @protected
    */
   state
 
   /**
    * @type {GameLevel[]}
+   * @protected
    */
   levelsOfDifficulty
 
@@ -58,14 +61,15 @@ export class BaseScreen {
   /**
    * @param {BaseScreenProps} props
    */
-  constructor({ levelsOfDifficulty, state }) {
+  constructor({ levelsOfDifficulty, onPress = () => {}, state }) {
     this.levelsOfDifficulty = levelsOfDifficulty
     this.state = state
 
     this.keyboard = new Keyboard({
       sequence: this.state.levelOfDifficulty.sequence,
+
       onPress: (symbol) => {
-        console.log(symbol)
+        onPress(symbol)
       }
     })
   }
@@ -121,6 +125,7 @@ export class BaseScreen {
     this.difficultyLevel = new DifficultyLevel({
       levelsOfDifficulty: this.levelsOfDifficulty,
       state: this.state,
+
       onChange: () => {
         this.#setKeyboardSequence()
       }

@@ -1,14 +1,20 @@
 import { BaseScreen } from 'service/screen/BaseScreen.js'
 import { Button } from 'service/ui/Button.js'
+import { Field } from 'service/ui/Field.js'
 
 /**
- * @typedef {BaseScreen & {
+ * @typedef {BaseScreenProps & {
  *   onRepeatSequence?: () => {}
  *   onNewGame?: () => {}
  * }} PlayScreenProps
  */
 
 export class PlayScreen extends BaseScreen {
+  /**
+   * @type {Field}
+   */
+  #field = new Field()
+
   /**
    * @type {Button}
    */
@@ -64,9 +70,12 @@ export class PlayScreen extends BaseScreen {
   }
 
   customizeContainer() {
-    this.#displayRound()
+    this.displayRound()
+
+    this.#field.clear()
 
     this.$controls.append(
+      this.#field.$element,
       this.#repeatButton.$element,
       this.#newGameButton.$element
     )
@@ -74,7 +83,25 @@ export class PlayScreen extends BaseScreen {
     this.$container.prepend(this.$round, this.$controls)
   }
 
-  #displayRound() {
+  displayRound() {
     this.$round.innerText = `Round: ${this.state.round}`
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  typeSequence() {
+    return this.keyboard.typeSequence(this.state.generatedSequence)
+  }
+
+  /**
+   * @param {string} value
+   */
+  addToField(value) {
+    this.#field.addValue(value)
+  }
+
+  clearField() {
+    this.#field.clear()
   }
 }
