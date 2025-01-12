@@ -2,7 +2,7 @@ import { BaseScreen } from 'service/screen/BaseScreen.js'
 import { Button } from 'service/ui/Button.js'
 
 /**
- * @typedef {BaseScreen & {
+ * @typedef {BaseScreenProps & {
  *   onStart?: () => {}
  * }} StartScreenProps
  */
