@@ -3,30 +3,36 @@ import { Button } from 'service/ui/Button.js'
 
 /**
  * @typedef {BaseScreen & {
- *   onStart
+ *   onStart?: () => {}
  * }} StartScreenProps
  */
 
 export class StartScreen extends BaseScreen {
   /**
+   * @type {Button}
+   */
+  #startButton = new Button({
+    title: 'Start',
+    onClick: () => {
+      this.#onStart()
+    }
+  })
+
+  /**
    * @type {() => {}}
    */
   #onStart
 
-  constructor({ onStart = () => {}, ...props }) {
-    super(props)
+  /**
+   * @param {StartScreenProps} props
+   */
+  constructor({ onStart = () => {}, ...baseProps }) {
+    super(baseProps)
 
     this.#onStart = onStart
   }
 
   customizeContainer() {
-    const startButton = new Button({
-      title: 'Start',
-      onClick: () => {
-        this.#onStart()
-      }
-    })
-
-    this.$container.prepend(startButton.$element)
+    this.$container.prepend(this.#startButton.$element)
   }
 }
