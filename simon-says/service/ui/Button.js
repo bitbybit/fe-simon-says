@@ -41,6 +41,16 @@ export class Button {
     this.$element.classList.add('btn-primary')
   }
 
+  hide() {
+    this.$element.classList.remove('d-inline-block')
+    this.$element.classList.add('d-none')
+  }
+
+  show() {
+    this.$element.classList.remove('d-none')
+    this.$element.classList.add('d-inline-block')
+  }
+
   /**
    * @returns {boolean}
    */
