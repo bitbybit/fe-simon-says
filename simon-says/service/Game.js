@@ -166,6 +166,8 @@ export class Game {
       return
     }
 
+    this.#state.typedSequence = ''
+
     this.#playScreen.clearMessage()
     this.#playScreen.clearField()
 
