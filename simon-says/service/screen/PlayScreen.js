@@ -20,7 +20,7 @@ export class PlayScreen extends BaseScreen {
    * @type {Button}
    */
   repeatButton = new Button({
-    title: 'Repeat the sequence',
+    title: 'Repeat',
     onClick: () => {
       this.#onRepeatSequence()
     }
@@ -64,11 +64,6 @@ export class PlayScreen extends BaseScreen {
   /**
    * @type {HTMLDivElement}
    */
-  $round = document.createElement('div')
-
-  /**
-   * @type {HTMLDivElement}
-   */
   $message = document.createElement('div')
 
   /**
@@ -98,6 +93,11 @@ export class PlayScreen extends BaseScreen {
     this.clearField()
     this.hideNextButton()
 
+    this.$controls.classList.add('grid', 'mt-4', 'mb-4')
+
+    this.nextButton.$element.classList.add('btn-success')
+    this.newGameButton.$element.classList.add('btn-warning')
+
     this.$controls.append(
       this.#field.$element,
       this.repeatButton.$element,
@@ -105,11 +105,13 @@ export class PlayScreen extends BaseScreen {
       this.newGameButton.$element
     )
 
-    this.$container.prepend(this.$round, this.$controls, this.$message)
+    this.$container.prepend(this.$titleContainer)
+
+    this.$container.append(this.$controls, this.$message)
   }
 
   displayRound() {
-    this.$round.innerText = `Round: ${this.state.round}`
+    this.$titleContainer.innerText = `Round: ${this.state.round}`
   }
 
   /**
@@ -119,9 +121,25 @@ export class PlayScreen extends BaseScreen {
    */
   setMessage({ type = 'success', message }) {
     this.$message.innerText = message
+
+    switch (true) {
+      case type === 'success':
+        this.$message.classList.add('text-success')
+        break
+
+      case type === 'error':
+        this.$message.classList.add('text-danger')
+        break
+
+      default:
+        break
+    }
   }
 
   clearMessage() {
+    this.$message.classList.remove('text-success')
+    this.$message.classList.remove('text-danger')
+
     this.setMessage({ message: '' })
   }
 
@@ -129,9 +147,19 @@ export class PlayScreen extends BaseScreen {
    * @returns {Promise<void>}
    */
   async typeSequence() {
+    const wasRepeatDisabled = this.repeatButton.isDisabled
+
+    if (!wasRepeatDisabled) {
+      this.repeatButton.disable()
+    }
+
     this.newGameButton.disable()
 
     await this.keyboard.typeSequence(this.state.generatedSequence)
+
+    if (!wasRepeatDisabled) {
+      this.repeatButton.enable()
+    }
 
     this.newGameButton.enable()
   }

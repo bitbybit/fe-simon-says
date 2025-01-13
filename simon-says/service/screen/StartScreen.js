@@ -33,6 +33,12 @@ export class StartScreen extends BaseScreen {
   }
 
   customizeContainer() {
-    this.$container.prepend(this.#startButton.$element)
+    this.$titleContainer.innerText = 'Simon Says'
+
+    this.$container.prepend(this.$titleContainer)
+
+    this.#startButton.$element.classList.add('btn-success')
+
+    this.$container.appendChild(this.#startButton.$element)
   }
 }

@@ -50,6 +50,12 @@ export class BaseScreen {
    * @type {HTMLDivElement}
    * @protected
    */
+  $titleContainer = document.createElement('div')
+
+  /**
+   * @type {HTMLDivElement}
+   * @protected
+   */
   $difficultyLevelContainer = document.createElement('div')
 
   /**
@@ -110,6 +116,10 @@ export class BaseScreen {
   #insertContainer() {
     this.$body.appendChild(this.$container)
 
+    this.$container.classList.add('container', 'text-center')
+
+    this.$titleContainer.classList.add('h4', 'text-center')
+
     this.$container.append(
       this.$difficultyLevelContainer,
       this.$keyboardContainer
@@ -130,6 +140,10 @@ export class BaseScreen {
         this.#setKeyboardSequence()
       }
     })
+
+    this.$difficultyLevelContainer.classList.add('grid', 'mt-4', 'mb-4')
+
+    this.$keyboardContainer.classList.add('grid', 'mt-4', 'mb-4')
 
     this.$difficultyLevelContainer.replaceChildren(
       ...this.difficultyLevel.$elements
